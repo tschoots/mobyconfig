@@ -29,6 +29,7 @@ type Config struct {
 	Password string `json:"password"`
 	MaxScans int `json:"maxscans"`
 	MaxUploadSize int `json:"maxuploadsize"` 
+	RequestorsStorage string `json:"requestorsstorage"`
 }
 
 func  GetConfig(configJsonFile string) (*Config, bool) {
@@ -96,6 +97,9 @@ func (c *Config) init() {
 	
 	fmt.Println("Max upload size in mb : ")
 	fmt.Scanln(&c.MaxUploadSize)
+	
+	fmt.Println("Requestors storage relative path")
+	fmt.Scanln(&c.RequestorsStorage)
 
 	fmt.Println("Enter url formate http|https://<server>[:port]: ")
 	fmt.Scanln(&hubUrl)
