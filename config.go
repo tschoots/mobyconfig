@@ -1,7 +1,6 @@
 package mobyconfig
 
 import (
-	"archive/zip"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -11,7 +10,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -22,7 +20,7 @@ import (
 
 var key = []byte("pronktjiesparktr535afasdf asdnvr")
 
-type config struct {
+type Config struct {
 	Url      string `json:"url"`
 	Host     string `json:"hubhost"`
 	Port     string `json:"port"`
@@ -33,23 +31,23 @@ type config struct {
 	MaxUploadSize int `json:"maxuploadsize"` 
 }
 
-func  GetConfig(configJsonFile string) (*config, bool) {
+func  GetConfig(configJsonFile string) (*Config, bool) {
 	// check if the json file in conf/config.json exist
-	if _, err := os.Stat(configFile); err != nil {
+	if _, err := os.Stat(configJsonFile); err != nil {
 		if os.IsNotExist(err) {
 			return nil, false
 		} else {
-			fmt.Errorf("file %s has problems : \n%s\n", config_file, err)
+			fmt.Errorf("file %s has problems : \n%s\n", configJsonFile, err)
 			return nil, false
 		}
 
 	} else {
 		// config_file exists read it and unmarshall
-		conf := &config{}
+		conf := &Config{}
 		
-		file, err := ioutil.ReadFile(config_file)
+		file, err := ioutil.ReadFile(configJsonFile)
 		if err != nil {
-			fmt.Errorf("ERROR readfile %s : \n%s\n", config_file, err)
+			fmt.Errorf("ERROR readfile %s : \n%s\n", configJsonFile, err)
 			return nil, false
 		}
 		
@@ -61,8 +59,8 @@ func  GetConfig(configJsonFile string) (*config, bool) {
 
 }
 
-func CreateConfig(configJsonFile string) (*config , bool) {
-	conf := config{ConfigFile: configJsonFile}
+func CreateConfig(configJsonFile string) (*Config , bool) {
+	conf := Config{}
 	
 	conf.init()
 	
@@ -72,29 +70,23 @@ func CreateConfig(configJsonFile string) (*config , bool) {
 		return nil, false
 	}
 	
-	if err := os.MkdirAll(filepath.Dir(config_file), 0755); err != nil {
-		fmt.Errorf("Error creating directory %s : \n%s\n\n", filepath.Dir(config_file), err)
+	if err := os.MkdirAll(filepath.Dir(configJsonFile), 0755); err != nil {
+		fmt.Errorf("Error creating directory %s : \n%s\n\n", filepath.Dir(configJsonFile), err)
 		return nil, false
 	}
 	
-	if err := ioutil.WriteFile(config_file, jsonString, 0755); err != nil {
+	if err := ioutil.WriteFile(configJsonFile, jsonString, 0755); err != nil {
 		fmt.Errorf("error writing config file : %s\n\n", err)
 		return nil, false
 	}
 	
 	conf.Password = decrypt(key, conf.Password)
 	
-	if err := os.MkdirAll(cli_path, 0755); err != nil {
-		fmt.Errorf("Error creating directory %s: \n%s\n\n", cli_path, err)
-		return nil, false
-	}
 	
-	downloadUrl := fmt.Sprintf("%s/%s", conf.Url, cli_url)
-	downloadFromUrl(downloadUrl)
 	return &conf, true
 }
 
-func (c *config) init() {
+func (c *Config) init() {
 
 	// config file doesn't exist so get data from the user
 	var hubUrl string
@@ -195,9 +187,9 @@ func decrypt(key []byte, cryptoText string) string {
 	return fmt.Sprintf("%s", ciphertext)
 }
 
-func (c *config) validUseridPassword() bool {
+func (c *Config) validUseridPassword() bool {
 
-	hubServer := HubServer{Config: c}
+	hubServer := hubServer{Config: c}
 	
 	return hubServer.login()
 }
