@@ -98,7 +98,7 @@ func (c *Config) init() {
 	fmt.Println("Max upload size in mb : ")
 	fmt.Scanln(&c.MaxUploadSize)
 	// convert to bytes
-	c.MaxUploadSize = c.MaxUploadSize * 1000000
+	c.MaxUploadSize = c.MaxUploadSize * 1024 * 1024
 	
 	fmt.Println("Requestors storage relative path")
 	fmt.Scanln(&c.RequestorsStorage)
