@@ -28,7 +28,7 @@ type Config struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
 	MaxScans int `json:"maxscans"`
-	MaxUploadSize int `json:"maxuploadsize"` 
+	MaxUploadSize int `json:"maxuploadsize"`                // in bytes
 	RequestorsStorage string `json:"requestorsstorage"`
 }
 
@@ -97,6 +97,8 @@ func (c *Config) init() {
 	
 	fmt.Println("Max upload size in mb : ")
 	fmt.Scanln(&c.MaxUploadSize)
+	// convert to bytes
+	c.MaxUploadSize = c.MaxUploadSize * 1000000
 	
 	fmt.Println("Requestors storage relative path")
 	fmt.Scanln(&c.RequestorsStorage)
