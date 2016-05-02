@@ -14,6 +14,8 @@ import (
 	"os"
 	"strings"
 	"path/filepath"
+	"net/http"
+	"archive/zip"
 )
 
 const (
@@ -93,7 +95,7 @@ func CreateConfig(configJsonFile string) (*Config , bool) {
 	}
 	
 	downloadUrl := fmt.Sprintf("%s/%s", conf.Url, cli_url)
-	downloadFromUrl(downloadUrl)
+	conf.downloadFromUrl(downloadUrl)
 	
 	return &conf, true
 }
