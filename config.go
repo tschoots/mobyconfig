@@ -16,6 +16,10 @@ import (
 	"path/filepath"
 )
 
+const (
+	cli_url     = "/download/scan.cli.zip"
+	cli_path    = "scanner"
+)
 
 
 var key = []byte("pronktjiesparktr535afasdf asdnvr")
@@ -83,6 +87,13 @@ func CreateConfig(configJsonFile string) (*Config , bool) {
 	
 	conf.Password = decrypt(key, conf.Password)
 	
+	if err := os.MkdirAll(cli_path, 0755); err != nil {
+		fmt.Errorf("Error creating directory %s: \n%s\n\n", cli_path, err)
+		return nil, false
+	}
+	
+	downloadUrl := fmt.Sprintf("%s/%s", conf.Url, cli_url)
+	downloadFromUrl(downloadUrl)
 	
 	return &conf, true
 }
@@ -198,6 +209,85 @@ func (c *Config) validUseridPassword() bool {
 	hubServer := hubServer{Config: c}
 	
 	return hubServer.login()
+}
+
+func (c *Config) downloadFromUrl(url string) {
+	tokens := strings.Split(url, "/")
+	dirName := cli_path
+	filename := tokens[len(tokens)-1]
+	fullFileName := fmt.Sprintf("%s/%s", dirName, filename)
+	fmt.Printf("downloading %s to %s\n", url, fullFileName)
+
+	
+	os.MkdirAll(cli_path, 0755)
+	output, err := os.Create(fullFileName)
+	if err != nil {
+		fmt.Printf("ERROR creating file %s \n%s\n", fullFileName, err)
+		return
+	}
+	defer output.Close()
+
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Printf("ERROR while downloading %s\n%s\n", url, err)
+		return
+	}
+
+	n, err := io.Copy(output, response.Body)
+	if err != nil {
+		fmt.Printf("ERROR copy to file %s\n%s\n", fullFileName, err)
+		return
+	}
+	fmt.Sprintf("%d bytes downloaded.", n)
+
+	r, err := zip.OpenReader(fullFileName)
+	if err != nil {
+		fmt.Printf("ERROR zip.OpenReader : %s\n%s\n", fullFileName, err)
+		return
+	}
+
+	//iterate through the archive create the files and directories
+	for _, f := range r.File {
+		name := fmt.Sprintf("%s/%s", dirName, f.Name)
+		if f.FileInfo().IsDir() {
+			fmt.Printf("dir : %s\n", f.Name)
+			os.Mkdir(name, 0775)
+		} else {
+			fmt.Printf("file : %s\n", f.Name)
+			rc, err := f.Open()
+			if err != nil {
+				fmt.Printf("ERROR can't open file : %s\n", f.Name)
+				continue
+			}
+			fo, err := os.Create(name)
+			if err != nil {
+				fmt.Printf("ERROR creating file %s\n%s\n", name, err)
+				continue
+			}
+			defer fo.Close()
+
+			//buffer the writing to file
+			buf := make([]byte, 1024)
+			for {
+				n, err := rc.Read(buf)
+				if n == 0 {
+					break
+				}
+				if err != nil {
+					fmt.Printf("ERROR reading buffer of %s\n%s\n", name, err)
+					break
+				}
+
+				// write a chunk
+				if _, err := fo.Write(buf[:n]); err != nil {
+					fmt.Printf("ERROR writing buffer to file %s\n%s\n", name, err)
+					break
+				}
+			}
+
+		}
+	}
+	os.Remove(fullFileName)
 }
 
 
