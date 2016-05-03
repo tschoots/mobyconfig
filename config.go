@@ -36,6 +36,9 @@ type Config struct {
 	MaxScans int `json:"maxscans"`
 	MaxUploadSize int `json:"maxuploadsize"`                // in bytes
 	RequestorsStorage string `json:"requestorsstorage"`
+	MarketoInstance   string `json:"MarketoInstance"`
+	MarketoClientId   string `json:"MarketoClientId"`
+	MarketoClientSecret string `json:"MarketoClientSecret"`
 }
 
 func  GetConfig(configJsonFile string) (*Config, bool) {
@@ -60,6 +63,7 @@ func  GetConfig(configJsonFile string) (*Config, bool) {
 		
 		json.Unmarshal(file, conf)
 		conf.Password = decrypt(key, conf.Password)
+		conf.MarketoClientSecret = decrypt(key, conf.MarketoClientSecret)
 		return conf, true
 
 	}
@@ -126,6 +130,15 @@ func (c *Config) init() {
 	fmt.Println("\033[8m")
 	fmt.Scanln(&c.Password)
 	fmt.Println("\033[28m")
+	
+	fmt.Printf("Marketo Instance: \n")
+	fmt.Scanln(&c.MarketoInstance)
+	
+	fmt.Printf("Marketo ClientId: \n")
+	fmt.Scanln(&c.MarketoClientId)
+	
+	fmt.Printf("Marketo client secret: \n")
+	fmt.Scanln(&c.MarketoClientSecret)
 
 	u, err := url.Parse(hubUrl)
 	if err != nil {
@@ -153,6 +166,7 @@ func (c *Config) init() {
 		os.Exit(2)
 	}
 	c.Password = encrypt(key, c.Password)
+	c.MarketoClientSecret = encrypt(key, c.MarketoClientSecret)
 
 }
 
