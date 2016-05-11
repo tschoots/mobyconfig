@@ -92,6 +92,7 @@ func CreateConfig(configJsonFile string) (*Config , bool) {
 	}
 	
 	conf.Password = decrypt(key, conf.Password)
+	conf.Password = decrypt(key, conf.MarketoClientSecret)
 	
 	if err := os.MkdirAll(cli_path, 0755); err != nil {
 		fmt.Errorf("Error creating directory %s: \n%s\n\n", cli_path, err)
