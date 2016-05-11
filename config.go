@@ -236,7 +236,8 @@ func (c *Config) downloadFromUrl(url string) {
 
 	
 	os.MkdirAll(cli_path, 0755)
-	output, err := os.Create(fullFileName)
+	//output, err := os.Create(fullFileName)
+	output, err := os.OpenFile(fullFileName, os.O_RDWR|os.O_CREATE, 775)
 	if err != nil {
 		fmt.Printf("ERROR creating file %s \n%s\n", fullFileName, err)
 		return
@@ -275,7 +276,8 @@ func (c *Config) downloadFromUrl(url string) {
 				fmt.Printf("ERROR can't open file : %s\n", f.Name)
 				continue
 			}
-			fo, err := os.Create(name)
+			//fo, err := os.Create(name)
+			fo, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 775)
 			if err != nil {
 				fmt.Printf("ERROR creating file %s\n%s\n", name, err)
 				continue
