@@ -20,7 +20,7 @@ import (
 
 const (
 	cli_url     = "/download/scan.cli.zip"
-	cli_path    = "scanner"
+	cli_path    = "../scanner"
 )
 
 
