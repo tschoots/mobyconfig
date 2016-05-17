@@ -228,6 +228,10 @@ func (c *Config) validUseridPassword() bool {
 	return hubServer.login()
 }
 
+func (c *Config) DownloadScanner() {
+	c.downloadFromUrl(c.Url)
+}
+
 func (c *Config) downloadFromUrl(url string) {
 	tokens := strings.Split(url, "/")
 	dirName := cli_path
