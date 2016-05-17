@@ -229,18 +229,19 @@ func (c *Config) validUseridPassword() bool {
 }
 
 func (c *Config) DownloadScanner() {
-	c.downloadFromUrl(c.Url)
+	downloadUrl := fmt.Sprintf("%s/%s", c.Url, cli_url)
+	c.downloadFromUrl(downloadUrl)
 }
 
 func (c *Config) downloadFromUrl(url string) {
 	tokens := strings.Split(url, "/")
-	dirName := cli_path
+	dirName, _  := filepath.Abs(cli_path)
 	filename := tokens[len(tokens)-1]
 	fullFileName := fmt.Sprintf("%s/%s", dirName, filename)
 	fmt.Printf("downloading %s to %s\n", url, fullFileName)
 
 	
-	os.MkdirAll(cli_path, 0755)
+	os.MkdirAll(dirName, 0755)
 	//output, err := os.Create(fullFileName)
 	output, err := os.OpenFile(fullFileName, os.O_RDWR|os.O_CREATE, 775)
 	if err != nil {
